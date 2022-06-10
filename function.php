@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 
 <head>
@@ -48,10 +48,44 @@
     <div class="quiz">
         all()-給定資料表名後，會回傳整個資料表的資料
     </div>
-    
+    <?php
+    $table = isset($_GET['table']) ? $_GET['table'] : 'dept';
+
+    ?>
+    <form action="function.php">
+        資料表:<input type="text" name="table" value="<?= $table; ?>">&nbsp;&nbsp;
+
+        <input type="submit" value="列出">
+    </form>
+    <?php
+
+    $rows = all($table);
+    echo "<ul>";
+    foreach ($rows as $row) {
+        echo "<li>";
+        show($row);
+        echo "</li>";
+    }
+    echo "</ul>";
+    ?>
     <div class="quiz">
         find()-會回傳資料表指定id的資料
     </div>
+    <?php
+    $id = isset($_GET['id']) ? $_GET['id'] : '1';
+    $table = isset($_GET['table']) ? $_GET['table'] : 'students';
+
+    ?>
+    <form action="function.php">
+        資料表:<input type="text" name="table" value="<?= $table; ?>">&nbsp;&nbsp;
+        id:<input type="text" name="id" value="<?= $id; ?>">&nbsp;&nbsp;
+
+        <input type="submit" value="列出">
+    </form>
+    <?php
+    $row = find($table, $id);
+    show($row);
+    ?>
     <div class="quiz">
         update()-給定資料表的條件後，會去更新相應的資料。
     </div>
@@ -141,17 +175,37 @@ function starts($size, $shap)
     }
 }
 
+
+function pdo($db){
+    $dsn="mysql:host=localhost;charset=utf8;dbname=$db";
+    return new PDO($dsn,'root','');    
+}
 //all()-給定資料表名後，會回傳整個資料表的資料
-function all()
-{
+function all($table){
+   $pdo=pdo('school2');
+    $sql="SELECT * FROM `$table`";
+    return $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
 
 //find()-會回傳資料表指定id的資料
-function find()
-{
+function find($table,$id){
+    $pdo=pdo('school2');
+    $sql="SELECT * FROM `$table` WHERE `id`='$id'";
+    return $pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
 }
 
+function show($row){
+    
+    if(is_array($row)){
+        foreach($row as  $value){
+            echo $value;
+            echo "--";
+        }
+    }else{
+        echo "這不是一筆標準的資料，請重新輸入";
+    }
+}
 
 //update()-給定資料表的條件後，會去更新相應的資料。
 function update()
